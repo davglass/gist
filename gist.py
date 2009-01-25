@@ -9,7 +9,7 @@ URL_GIST_VIEW = URL_GIST + "{id}"
 URL_GIST_TXT = URL_GIST_VIEW + ".txt"
 URL_GIST_POST = URL_GIST + "gists"
 
-def loadAuthentication():
+def load_authentication():
 	"""
 		Loads GitHub/Gist authentication information from the git config,
 		
@@ -46,7 +46,7 @@ class GistUser(object):
 			else:
 				raise ValueError("Authenication tuple must be of length 2.")
 		else:
-			self.authentication = loadAuthentication()
+			self.authentication = load_authentication()
 	
 	def __repr__(self):
 		if self.authentication:
