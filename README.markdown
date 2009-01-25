@@ -8,9 +8,21 @@ Ported this script to Python.. Also supports passing multiple files
 Installation
 ------------
 
-TODO
+
+    curl http://github.com/davglass/gist/raw/master/gist.py?raw=true > gist
+    chmod 755 gist
+    sudo mv gist /usr/local/bin/gist
+
+
 
 Usage
 ------------
 
-gist.py file.txt file2.js file3.html
+    gist.py file.txt file2.js file3.html
+
+
+TODO
+------------
+
+ * Add Read Gist support
+ * Add directory support
