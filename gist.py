@@ -5,7 +5,8 @@ import optparse
 import subprocess
 
 URL_GIST = "http://gist.github.com/"
-URL_GIST_TXT = URL_GIST + "{id}.txt"
+URL_GIST_VIEW = URL_GIST + "{id}"
+URL_GIST_TXT = URL_GIST_VIEW + ".txt"
 URL_GIST_POST = URL_GIST + "gists"
 
 def loadAuthentication():
@@ -52,11 +53,29 @@ class GistUser(object):
 			return("GistUser({0})".format(self.authentication))
 		else:
 			return("GistUser(authentication=None)")
+	
+	def read(self, id):
+		"""
+			Retrives and returns the text-only representation of a specified Gist.
+		"""
+		
+		raise(NotImplementedError("Keep waiting"))
+	
+	def write(self, content, private=False):
+		"""
+			Creates a Gist with the specified contents.
+			
+			Returns the id of the newly-created Gist.
+		"""
+		
+		raise(NotImplementedError("I swear it won't be long"))
 
 def main(*args):
 	import gist
 	
 	user = gist.GistUser()
 	print(user)
+	
+	user.read(1234)
 
 if __name__ == "__main__": sys.exit(main(*sys.argv[1:]))
