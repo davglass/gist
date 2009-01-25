@@ -1,20 +1,29 @@
 #!/usr/bin/env python
 
 from optparse import OptionParser
-import os, sys, string, pprint
+import os, sys, platform, string, pprint
 from cStringIO import StringIO
 import urllib2, urllib
 
 
-optparser = OptionParser("usage: %prog inputdir [options] inputdir")
-optparser.set_defaults(secret="")
+optparser = OptionParser("usage: %prog [-p] file1 file2 file3\n\n
+Pass files to me and I'll post them to http://gist.github.com")
+optparser.set_defaults(gistread="")
 optparser.add_option( "-p", "--private",
         action="store_true", dest="private",
         help="The private secret." )
+optparser.add_option( "-r", "--read",
+        action="store", dest="gistread", type="string",
+        help="The Gist to read.." )
 
 
 (opts, filenames) = optparser.parse_args()
 
+
+def copy(content):
+    system = platform.system()
+    if system == 'Darwin':
+        os.popen('pbcopy', 'r').write(content)
 
 def write(filenames):
     out = {}
@@ -47,8 +56,9 @@ def write(filenames):
     req = urllib2.Request(url, data)
     response = urllib2.urlopen(req)
 
-
-    print(response.geturl())
+    url = response.geturl()
+    #copy(url)
+    print url
 
 
 if len(filenames) == 0:
