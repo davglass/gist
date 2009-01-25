@@ -4,20 +4,21 @@
 
 INSTALL:
 
-  curl http://github.com/defunkt/gist/tree/master%2Fgist.rb?raw=true > gist &&
-  chmod 755 gist &&
-  sudo mv gist /usr/local/bin/gist
+    curl http://github.com/defunkt/gist/tree/master%2Fgist.rb?raw=true > gist &&
+    chmod 755 gist &&
+    sudo mv gist /usr/local/bin/gist
 
 USE:
 
-  gist < file.txt
-  echo secret | gist -p # or --private
-  gist 1234 > something.txt
+    gist < file.txt
+    echo secret | gist -p # or --private
+    gist 1234 > something.txt
 
 =end
 
 require 'open-uri'
 require 'net/http'
+
 
 module Gist
   extend self

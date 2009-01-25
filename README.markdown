@@ -3,22 +3,14 @@ Gist: The Script
 
 Works great with Gist: The Website.
 
+Ported this script to Python.. Also supports passing multiple files
+
 Installation
 ------------
 
-    curl http://github.com/defunkt/gist/tree/master%2Fgist.rb?raw=true > gist &&
-    chmod 755 gist &&
-    sudo mv gist /usr/local/bin/gist
+TODO
 
-Use
----
+Usage
+------------
 
-    gist < file.txt
-    echo secret | gist --private # or -p
-    gist 1234 > something.txt
-
-
-Ninja vs Shark
---------------
-
-![Ninja vs Shark](http://github.com/defunkt/gist/tree/master%2Fbattle.png?raw=true)
+gist.py file.txt file2.js file3.html
