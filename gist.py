@@ -26,6 +26,28 @@ def load_authentication():
 	else:
 		return(None)
 
+def clip(text):
+	"""
+		Attempts to copy the specified text to the clipboard, returning
+		a boolean indicating success.
+	"""
+	
+	text_bytes = text.encode()
+	
+	try:
+		pbcopy = subprocess.Popen("pbcopy", stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+		pbcopy.communicate(text_bytes)
+		return(not pbcopy.returncode)
+	except OSError:
+		try:
+			xclip = subprocess.Popen("xclip", stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+			xclip.communicate(text_bytes)
+			return(not xclip.returncode)
+		except OSError:
+			pass
+	
+	return(False)
+
 class GistUser(object):
 	"""
 		Represents a Gist user, including authentication information.
