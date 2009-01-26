@@ -9,7 +9,10 @@ optparser = OptionParser("usage: %prog [-p] file1 file2 file3\n\nPass files to m
 optparser.set_defaults(gistread="")
 optparser.add_option( "-p", "--private",
         action="store_true", dest="private",
-        help="The private secret." )
+        help="Make the Gist private." )
+optparser.add_option( "-c", "--clone",
+        action="store_true", dest="clone",
+        help="Clone this repository, only valid with the -r option." )
 optparser.add_option( "-r", "--read",
         action="store", dest="gistread", type="string",
         help="The Gist to read.." )
@@ -70,13 +73,18 @@ def write(filenames):
 
 
 def read(id):
-    url = "http://gist.github.com/%s.txt" % id;
-    req = urllib2.Request(url)
-    response = urllib2.urlopen(req)
-    
-    data = response.read()
-    copy(data)
-    print data
+    if opts.clone:
+        print "Cloning Gist: %s" % id
+        cmd = 'git clone git://gist.github.com/%s.git gist-%s' % (id, id)
+        os.popen(cmd)
+    else:
+        url = "http://gist.github.com/%s.txt" % id;
+        req = urllib2.Request(url)
+        response = urllib2.urlopen(req)
+        
+        data = response.read()
+        copy(data)
+        print data
 
 
 if opts.gistread:
