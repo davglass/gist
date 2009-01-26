@@ -16,6 +16,9 @@ optparser.add_option( "-c", "--clone",
 optparser.add_option( "-r", "--read",
         action="store", dest="gistread", type="string",
         help="The Gist to read.." )
+optparser.add_option( "-e", "--ext",
+        action="store", dest="gistext", type="string",
+        help="The extension you want this gist to have. Overrides the filename extension. (ex: .js .xml .php)" )
 
 
 (opts, filenames) = optparser.parse_args()
@@ -48,7 +51,13 @@ def write(filenames):
             ext_key = "file_ext[gistfile%s]" % counter
             name_key = "file_name[gistfile%s]" % counter
             content_key = "file_contents[gistfile%s]" % counter
-            out[ext_key] = info[1] or '.txt'
+            if opts.gistext:
+                out[ext_key] = opts.gistext
+            elif info[1]:
+                out[ext_key] = info[1]
+            else:
+                out[ext_key] = '.txt'
+
             out[name_key] = name
             out[content_key] = fileStr
             counter = counter + 1
@@ -59,7 +68,7 @@ def write(filenames):
     out['login'] = os.popen('git config --global github.user').read().strip()
     out['token'] = os.popen('git config --global github.token').read().strip()
 
-
+    
     url = 'http://gist.github.com/gists'
     data = urllib.urlencode(out)
     req = urllib2.Request(url, data)
