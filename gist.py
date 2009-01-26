@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from optparse import OptionParser
-import os, sys, string, pprint
+import os, sys, string
 from cStringIO import StringIO
 import urllib2, urllib, subprocess
 
@@ -34,7 +34,6 @@ def copy(content):
         p.stdin.close()
         retcode = p.wait()
         
-        
 
 def write(filenames):
     out = {}
@@ -43,13 +42,14 @@ def write(filenames):
     for i in filenames:
         if os.path.isfile(i):
             info = os.path.splitext(i)
+            name = os.path.basename(i)
             f = open(i)
             fileStr = StringIO(f.read()).getvalue()
             ext_key = "file_ext[gistfile%s]" % counter
             name_key = "file_name[gistfile%s]" % counter
             content_key = "file_contents[gistfile%s]" % counter
-            out[ext_key] = info[1]
-            out[name_key] = i
+            out[ext_key] = info[1] or '.txt'
+            out[name_key] = name
             out[content_key] = fileStr
             counter = counter + 1
         
@@ -59,8 +59,6 @@ def write(filenames):
     out['login'] = os.popen('git config --global github.user').read().strip()
     out['token'] = os.popen('git config --global github.token').read().strip()
 
-
-    pp = pprint.PrettyPrinter(indent=4)
 
     url = 'http://gist.github.com/gists'
     data = urllib.urlencode(out)
@@ -89,8 +87,7 @@ def read(id):
 
 if opts.gistread:
     read(opts.gistread)
-    sys.exit(1)
-    
+    sys.exit(0)
 
 
 if len(filenames) == 0:

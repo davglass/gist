@@ -33,6 +33,17 @@ Usage
     gist -r 12345 -c
 
 
+Vim shortcut Key
+------------
+
+Add these lines to your .vimrc file and you have a new shortcut: Shift + F9 will write the file and create a Gist from it
+
+
+    " Make a Gist of this file..
+    map <S-F9> :w<CR> :!gist %<CR>
+
+
+
 TODO
 ------------
 
