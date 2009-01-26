@@ -69,6 +69,22 @@ def write(filenames):
     print url
 
 
+def read(id):
+    url = "http://gist.github.com/%s.txt" % id;
+    req = urllib2.Request(url)
+    response = urllib2.urlopen(req)
+    
+    data = response.read()
+    copy(data)
+    print data
+
+
+if opts.gistread:
+    read(opts.gistread)
+    sys.exit(1)
+    
+
+
 if len(filenames) == 0:
     print "No args given.."
     sys.exit(1)
