@@ -11,8 +11,7 @@ Installation
 ------------
 
     You need to set the GitHub config options to use this properly:
-    Go here: https://github.com/account
-    Click the "Global Git Config" link, follow instructions
+    http://github.com/guides/local-github-config
 
     curl http://github.com/davglass/gist/raw/master/gist.py?raw=true > gist
     chmod 755 gist
