@@ -3,16 +3,19 @@
 from optparse import OptionParser
 import os, sys, string
 from cStringIO import StringIO
-import urllib2, urllib, subprocess
+import urllib2, urllib, subprocess, pprint
 
 optparser = OptionParser("usage: %prog [-p] file1 file2 file3\n\nPass files to me and I'll post them to http://gist.github.com")
-optparser.set_defaults(gistread="")
+optparser.set_defaults(gistread="", debug=False)
 optparser.add_option( "-p", "--private",
         action="store_true", dest="private",
         help="Make the Gist private." )
 optparser.add_option( "-c", "--clone",
         action="store_true", dest="clone",
         help="Clone this repository, only valid with the -r option." )
+optparser.add_option( "-d", "--debug",
+        action="store_true", dest="debug",
+        help="Run in debug mode." )
 optparser.add_option( "-r", "--read",
         action="store", dest="gistread", type="string",
         help="The Gist to read.." )
@@ -22,6 +25,13 @@ optparser.add_option( "-e", "--ext",
 
 
 (opts, filenames) = optparser.parse_args()
+
+if opts.debug:
+    pp = pprint.PrettyPrinter(indent=4)
+    print "Running in Debug Mode.."
+    if opts.gistext:
+        print "Using Ext: %s" % opts.gistext
+
 
 
 def copy(content):
@@ -43,24 +53,33 @@ def write(filenames):
     counter = 1
 
     for i in filenames:
-        if os.path.isfile(i):
+        ext_key = "file_ext[gistfile%s]" % counter
+        name_key = "file_name[gistfile%s]" % counter
+        content_key = "file_contents[gistfile%s]" % counter
+        if i == sys.stdin:
+            if opts.debug:
+                print "Getting file from STDIN"
+            name = ''
+            fileStr = sys.stdin.read()
+        elif os.path.isfile(i):
+            if opts.debug:
+                print "Getting file from: %s" % i
+
             info = os.path.splitext(i)
             name = os.path.basename(i)
             f = open(i)
             fileStr = StringIO(f.read()).getvalue()
-            ext_key = "file_ext[gistfile%s]" % counter
-            name_key = "file_name[gistfile%s]" % counter
-            content_key = "file_contents[gistfile%s]" % counter
-            if opts.gistext:
-                out[ext_key] = opts.gistext
-            elif info[1]:
+            if info[1]:
                 out[ext_key] = info[1]
-            else:
-                out[ext_key] = '.txt'
 
-            out[name_key] = name
-            out[content_key] = fileStr
-            counter = counter + 1
+        if opts.gistext:
+            out[ext_key] = opts.gistext
+        else:
+            out[ext_key] = '.txt'
+
+        out[name_key] = name
+        out[content_key] = fileStr
+        counter = counter + 1
         
     if opts.private:
         out['private'] = 'on'
@@ -68,15 +87,18 @@ def write(filenames):
     out['login'] = os.popen('git config --global github.user').read().strip()
     out['token'] = os.popen('git config --global github.token').read().strip()
 
-    
-    url = 'http://gist.github.com/gists'
-    data = urllib.urlencode(out)
-    req = urllib2.Request(url, data)
-    response = urllib2.urlopen(req)
+    if opts.debug:
+        print "POST DATA:"
+        pp.pprint(out)
+    else:
+        url = 'http://gist.github.com/gists'
+        data = urllib.urlencode(out)
+        req = urllib2.Request(url, data)
+        response = urllib2.urlopen(req)
 
-    url = response.geturl()
-    copy(url)
-    print url
+        url = response.geturl()
+        copy(url)
+        print url
 
 
 def read(id):
@@ -100,7 +122,11 @@ if opts.gistread:
 
 
 if len(filenames) == 0:
-    print "No args given.."
-    sys.exit(1)
+    if sys.stdin:
+        filenames.append(sys.stdin)
+        #print sys.stdin.read()
+    else:
+        print "No files given.."
+        sys.exit(1)
 
 write(filenames)
