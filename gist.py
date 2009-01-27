@@ -85,7 +85,18 @@ class GistUser(object):
 			Retrives and returns the text-only representation of a specified Gist.
 		"""
 		
-		raise(NotImplementedError("Like, next commit, I promise, this'll be there."))
+		url = URL_HTTP_GIST_TXT.format(id=id)
+		
+		return(urllib.request.urlopen(url).read().decode())
+	
+	def clone(self, id):
+		"""
+			Clones (unauthenticatedly) the specified gist.
+		"""
+		
+		command = ["git", "clone", URL_GIT_GIST.format(id=id), "gist-{id}".format(id=id)]
+		
+		return(0 == subprocess.Popen(command).wait())
 	
 	def write(self, contents=None, files=None, private=False):
 		"""
@@ -113,14 +124,14 @@ def main(*args):
 	
 	(opts, files) = optparser.parse_args(list(args))
 	
+	user = gist.GistUser()
+	
 	if opts.mode == "post":
 		if files:
 			for filename in files:
 				if not os.path.isfile(filename):
 					sys.stderr.write("Error: \"{filename}\" is not a real file.".format(filename=filename))
 					return(1)
-			
-			user = gist.GistUser()
 			
 			post_data = {}
 			
@@ -168,8 +179,11 @@ def main(*args):
 		if files:
 			for id in files:
 				print("Cloning gist id {id}".format(id=id))
-				command = ["git", "clone", URL_GIT_GIST.format(id=id), "gist-{id}".format(id=id)]
-				subprocess.Popen(command).communicate(None)
+				
+				if user.clone(id):
+					print("Sucessful")
+				else:
+					print("Unsucessful")
 		else:
 			sys.stderr.write("No gist ID(s) specified.\n")
 			return(1)
@@ -178,15 +192,15 @@ def main(*args):
 			if len(files) > 1:
 				sys.stderr.write("Warning: Extra arguments ignored\n         (reading more than one Gist at a time is unsupported)\n")
 			
-			url = URL_HTTP_GIST_TXT.format(id=files[0])
-			
-			data = urllib.request.urlopen(url).read().decode()
+			data = user.read(files[0])
 			
 			if not clip(data):
-				sys.stderr.writeln("Warning: Unable to copy data to clipboard.")
+				sys.stderr.write("Warning: Unable to copy data to clipboard.\n")
 			
 			# BUGGY: FORMATS AS THOUGH USING REPR ON BYTES, NOT WHAT I MEAN TO BE DOING
 			sys.stdout.write(data)
+			sys.stderr.write("\n")
+			
 		else:
 			sys.stderr.write("No gist ID specified.\n")
 			return(1)
