@@ -15,11 +15,15 @@ Usage
 _(Will be filled in when this version if more feature-complete.)_
 
 
-`TODO`
-------
+TODO
+----
 
 * Move significant code into module and out of `main()`.
 * Support for reading private gists.
+* Use official API wherever possible (ex. public creating/reading)
+* Automatically detect if you attempt to clone one of your own gists,
+  and use the private clone URL if so. Give overrides to force private
+  or public clone attempts, though. Maybe. Think about this, at least.
 
 Authors
 -------

@@ -11,7 +11,8 @@ URL_HTTP_GIST = "http://gist.github.com/"
 URL_HTTP_GIST_VIEW = URL_HTTP_GIST + "{id}"
 URL_HTTP_GIST_TXT = URL_HTTP_GIST_VIEW + ".txt"
 URL_HTTP_GIST_POST = URL_HTTP_GIST + "gists"
-URL_GIT_GIST = "git://gist.github.com/{id}.git"
+URL_GIT_GIST_PUBLIC = "git://gist.github.com/{id}.git"
+URL_GIT_GIST_PRIATE = "git@gist.github.com:{id}.git"
 
 def load_authentication():
 	"""
@@ -154,7 +155,7 @@ def main(*args):
 			
 			post_data = urllib.parse.urlencode(post_data)
 			
-			reqest = urllib.request.Request(URL_HTTP_GIST_POST, post_data)
+			reqest = urllib.request.Request(URL_GIT_GIST_PUBLIC, post_data)
 			
 			try:
 				response = urllib.request.urlopen(reqest)
@@ -197,7 +198,6 @@ def main(*args):
 			if not clip(data):
 				sys.stderr.write("Warning: Unable to copy data to clipboard.\n")
 			
-			# BUGGY: FORMATS AS THOUGH USING REPR ON BYTES, NOT WHAT I MEAN TO BE DOING
 			sys.stdout.write(data)
 			sys.stderr.write("\n")
 			
