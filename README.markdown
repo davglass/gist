@@ -3,8 +3,14 @@ Gist: The Script
 
 Works great with Gist: The Website.
 
-Ported this script to Python.. Also supports passing multiple files
+Ported the Ruby script to Python..
 
+Also supports:
+
+ * Passing multiple files as arguments
+ * Optionally Read from STDIN
+ * Auto file type detection via ext
+ * Read support and clone support
 
 
 Installation
@@ -25,12 +31,17 @@ Usage
     #Creates a new Gist
     gist file.txt file2.js file3.html
 
+    #STDIN - Giving an extension
+    gist -e .js < myfile
+
+    #Debugging - This will print the Gist and not send it
+    gist -d -e .js < myfile
+
     #Pull the Gist #12345
     gist -r 12345
 
     #Clone the Gist #12345
     gist -r 12345 -c
-
 
 Vim shortcut Key
 ------------
