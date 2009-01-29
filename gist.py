@@ -20,7 +20,7 @@ GIST_API_NEW = "http://{server}/api/v1/{format}/new".format(server=GIST_SERVER, 
 GIT_GIST_PUBLIC = "git://{server}/{id}.git".format(server=GIST_SERVER, id="{id}")
 GIT_GIST_PRIVATE = "git@{server}:{id}.git".format(server=GIST_SERVER, id="{id}")
 
-RE_GIST_URL = re.compile("^https?://{server}/([0-9A-Fa-f]+)$".format(server=GIST_SERVER))
+RE_GIST_URL = re.compile("^https?://{server}/([0-9A-Fa-f]+)$".format(server=re.escape(GIST_SERVER)))
 
 class GistError(Exception):
 	"""A parent of all exceptions raised by this module."""
