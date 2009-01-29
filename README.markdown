@@ -44,12 +44,19 @@ TODO
   and use the private clone URL if so. Give overrides to force private
   or public clone attempts, though. Maybe. Think about this, at least.
 
+Repositories
+------------
+
+* [Ruby version](http://github.com/defunkt/gist/)
+* [Python 2 version](http://github.com/davglass/gist/)
+* [Python 3.0 version](http://github.com/JeremyBanks/gist/)
+
 Authors
 -------
 
-* [Original gist command line tool](http://github.com/defunkt/gist/) by [Chris Wanstrath](http://github.com/defunkt) (defunkt)
-* [Python port](http://github.com/davglass/) by [Dav Glass](http://github.com/davglass)
-* [Python 3.0 changes](http://github.com/JeremyBanks/gist/) by [Jeremy Banks](http://github.com/jeremybanks)
+* Original gist command line tool by [Chris Wanstrath](http://github.com/defunkt) (defunkt)
+* Python port by [Dav Glass](http://github.com/davglass)
+* Python 3.0 changes by [Jeremy Banks](http://github.com/jeremybanks)
 
 License
 -------
