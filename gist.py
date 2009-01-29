@@ -120,6 +120,8 @@ class GistUser(object):
 		"""
 			Creates a new Gist from the specified files.
 			
+			files should be provided as a list of tuples(contents, filename)
+			
 			Returns the id of the newly-created Gist.
 		"""
 		
@@ -131,15 +133,14 @@ class GistUser(object):
 		if private:
 			post_data["private"] = "on"
 		
-		for n, filename in enumerate(files, start=1):
-			if not os.path.isfile(filename):
-				raise(NotFileError("\"{filename}\" is not a real file.".format(filename=filename)))
+		for n, file_ in enumerate(files, start=1):
+			content, filename = file_
 			
 			form_key = "gistfile{n}".format(n=n)
 			
 			post_data["file_ext[{key}]".format(key=form_key)] = os.path.splitext(filename)[1] or ".txt"
-			post_data["file_name[{key}]".format(key=form_key)] = os.path.basename(filename)
-			post_data["file_contents[{key}]".format(key=form_key)] = open(filename).read()
+			post_data["file_name[{key}]".format(key=form_key)] = filename
+			post_data["file_contents[{key}]".format(key=form_key)] = content
 		
 		if self.authentication:
 			post_data["login"], post_data["token"] = self.authentication
@@ -169,7 +170,18 @@ class GistUser(object):
 def main(*args):
 	import gist
 	
-	optparser = optparse.OptionParser("usage: %prog\n\nBy default, specified files are posted uploaded to a new gist.")
+	optparser = optparse.OptionParser("\n".join([
+		"",
+		"  create a gist from one or more files",
+		"    %prog [-p] file [file2 file3...]",
+		"  create a gist from stdin, giving if a filename",
+		"    cal | %prog -i cal.txt",
+		"  clone the repostiories of one or more gists",
+		"    %prog -c id [id2 id3...]",
+		"  display the text contents of a gist",
+		"    %prog -r id",
+	]))
+	
 	optparser.set_defaults(mode="post")
 	optparser.add_option("-p", "--private", dest="private",
 		action="store_true",
@@ -180,6 +192,10 @@ def main(*args):
 	optparser.add_option("-r", "--read", dest="mode", const="read",
 		action="store_const",
 		help="Provided with an ID, displays and copies the text contents of that gist.")
+	optparser.add_option("-i", "--stdin", dest="mode", const="stdin",
+			action="store_const",
+			help="Makes a new gist using a single file from stdin, giving it whatever filename is specified.")
+	
 	
 	(opts, files) = optparser.parse_args(list(args))
 	
@@ -187,7 +203,15 @@ def main(*args):
 	
 	if opts.mode == "post":
 		if files:
-			id = user.write(files, private=opts.private)
+			file_data = []
+			
+			for n, filename in enumerate(files, start=1):
+				if not os.path.isfile(filename):
+					raise(NotFileError("\"{filename}\" is not a real file.".format(filename=filename)))
+				
+				file_data.append((open(filename).read(), os.path.basename(filename)))
+			
+			id = user.write(file_data, private=opts.private)
 			
 			url = HTTP_GIST_PUBLIC.format(id=id)
 			
@@ -198,6 +222,23 @@ def main(*args):
 		else:
 			sys.stderr.write("No files specified.\n")
 			return(1)
+	elif opts.mode == "stdin":
+		if len(files) > 1:
+			sys.stderr.write("Warning: Extra arguments ignored\n         (stdin is named from the first filename specified, others are ignored)\n")
+			
+		if files:
+			filename = files[0]
+		else:
+			filename = "gist.txt"
+		
+		id = user.write([(sys.stdin.read(), filename)])
+		
+		url = HTTP_GIST_PUBLIC.format(id=id)
+		
+		if not clip(url):
+			sys.stderr.writeln("Warning: Unable to copy URL to clipboard.")
+		
+		print(url)
 	elif opts.mode == "clone":
 		if files:
 			for id in files:

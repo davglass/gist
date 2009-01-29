@@ -1,6 +1,17 @@
 Gist: The Python 3.0 Script
 ===========================
 
+Works great with Gist: The Website.
+
+Ported the Ruby script to Python..
+
+Also supports:
+
+ * Passing multiple files as arguments
+ * Optionally Read from STDIN
+ * Auto file type detection via ext
+ * Read support and clone support
+
 Installation
 ------------
 
@@ -12,15 +23,23 @@ As for real installation, you don't want to do that yet.
 Usage
 -----
 
-_(Will be filled in when this version if more feature-complete.)_
-
+	# create a gist from one or more files
+	gist.py [-p] file [file2 file3...]
+	
+	# create a gist from stdin, giving if a filename
+	cal | gist.py -i cal.txt
+	
+	# clone the repostiories of one or more gists
+	gist.py -c id [id2 id3...]
+	
+	# display the text contents of a gist
+	gist.py -r id
 
 TODO
 ----
 
-* Move significant code into module and out of `main()`.
 * Support for reading private gists.
-* Use official API wherever possible (ex. public creating/reading)
+* Use official API wherever possible.
 * Automatically detect if you attempt to clone one of your own gists,
   and use the private clone URL if so. Give overrides to force private
   or public clone attempts, though. Maybe. Think about this, at least.
