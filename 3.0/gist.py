@@ -107,12 +107,20 @@ class GistUser(object):
 		
 		return(urllib.request.urlopen(url).read().decode())
 	
-	def clone(self, id):
+	def clone(self, id, private=None):
 		"""
-			Clones (unauthenticatedly) the specified Gist.
+			Clones the specified Gist.
 		"""
 		
-		command = ["git", "clone", GIT_GIST_PUBLIC.format(id=id), "gist-{id}".format(id=id)]
+		if private is None:
+			private = False # TODO: Determine if the user owns this repo.
+		
+		if private:
+			url = GIT_GIST_PRIVATE.format(id=id)
+		else:
+			url = GIT_GIST_PUBLIC.format(id=id)
+		
+		command = ["git", "clone", url, "gist-{id}".format(id=id)]
 		
 		return(0 == subprocess.Popen(command).wait())
 	
@@ -185,16 +193,19 @@ def main(*args):
 		"    %prog [-p] file [file2 file3...]",
 		"  Create a Gist from stdin, giving if a filename",
 		"    cal | %prog -i cal.txt",
-		"  Clone the repostiories of one or more Gists",
+		"  Clone the repositories of one or more Gists",
 		"    %prog -c id [id2 id3...]",
 		"  Display the text contents of a Gist",
 		"    %prog -r id",
 	]))
 	
-	optparser.set_defaults(mode="post")
-	optparser.add_option("-p", "--private", dest="private",
-		action="store_true",
-		help="Makes the newly created Gist private.")
+	optparser.set_defaults(mode="post", private=None)
+	optparser.add_option("-p", "--private", dest="private", const=True,
+		action="store_const",
+		help="When set private repositories and clones are made using the private URLs.")
+	optparser.add_option("-u", "--public", dest="private", const=False,
+		action="store_const",
+		help="The opposite of -p")
 	optparser.add_option("-c", "--clone", dest="mode", const="clone",
 		action="store_const",
 		help="Provided with one or more IDs, clones the repository of the associated Gist(s).")
@@ -259,7 +270,7 @@ def main(*args):
 			for id in files:
 				print("Cloning gist id {id}".format(id=id))
 				
-				if user.clone(id):
+				if user.clone(id, private=opts.private):
 					print("Sucessful")
 				else:
 					print("Unsucessful")
