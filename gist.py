@@ -109,7 +109,7 @@ class GistUser(object):
 	
 	def clone(self, id):
 		"""
-			Clones (unauthenticatedly) the specified gist.
+			Clones (unauthenticatedly) the specified Gist.
 		"""
 		
 		command = ["git", "clone", GIT_GIST_PUBLIC.format(id=id), "gist-{id}".format(id=id)]
@@ -126,7 +126,7 @@ class GistUser(object):
 		"""
 		
 		if not files:
-			raise(ValueError("Cannot create a gist without data."))
+			raise(ValueError("Cannot create a Gist without data."))
 		
 		post_data = {}
 		
@@ -172,29 +172,29 @@ def main(*args):
 	
 	optparser = optparse.OptionParser("\n".join([
 		"",
-		"  create a gist from one or more files",
+		"  Create a Gist from one or more files",
 		"    %prog [-p] file [file2 file3...]",
-		"  create a gist from stdin, giving if a filename",
+		"  Create a Gist from stdin, giving if a filename",
 		"    cal | %prog -i cal.txt",
-		"  clone the repostiories of one or more gists",
+		"  Clone the repostiories of one or more Gists",
 		"    %prog -c id [id2 id3...]",
-		"  display the text contents of a gist",
+		"  Display the text contents of a Gist",
 		"    %prog -r id",
 	]))
 	
 	optparser.set_defaults(mode="post")
 	optparser.add_option("-p", "--private", dest="private",
 		action="store_true",
-		help="Makes the newly created gist private.")
+		help="Makes the newly created Gist private.")
 	optparser.add_option("-c", "--clone", dest="mode", const="clone",
 		action="store_const",
-		help="Provided with one or more IDs, clones the repository of the associated gist(s).")
+		help="Provided with one or more IDs, clones the repository of the associated Gist(s).")
 	optparser.add_option("-r", "--read", dest="mode", const="read",
 		action="store_const",
-		help="Provided with an ID, displays and copies the text contents of that gist.")
+		help="Provided with an ID, displays and copies the text contents of that Gist.")
 	optparser.add_option("-i", "--stdin", dest="mode", const="stdin",
 			action="store_const",
-			help="Makes a new gist using a single file from stdin, giving it whatever filename is specified.")
+			help="Makes a new Gist using a single file from stdin, giving it whatever filename is specified.")
 	
 	
 	(opts, files) = optparser.parse_args(list(args))
