@@ -5,14 +5,31 @@ import urllib.request
 import urllib.error
 import optparse
 import subprocess
+import json
 import os
+import re
 
-URL_HTTP_GIST = "http://gist.github.com/"
-URL_HTTP_GIST_VIEW = URL_HTTP_GIST + "{id}"
-URL_HTTP_GIST_TXT = URL_HTTP_GIST_VIEW + ".txt"
-URL_HTTP_GIST_POST = URL_HTTP_GIST + "gists"
-URL_GIT_GIST_PUBLIC = "git://gist.github.com/{id}.git"
-URL_GIT_GIST_PRIATE = "git@gist.github.com:{id}.git"
+GIST_SERVER = "gist.github.com"
+
+HTTP_GIST_PUBLIC = "http://{server}/{id}".format(server=GIST_SERVER, id="{id}")
+HTTP_GIST_PUBLIC_TXT = "http://{server}/{id}.txt".format(server=GIST_SERVER, id="{id}")
+HTTP_GIST_POST = "http://{server}/gists".format(server=GIST_SERVER)
+
+GIST_API_NEW = "http://{server}/api/v1/{format}/new".format(server=GIST_SERVER, format="json")
+
+GIT_GIST_PUBLIC = "git://{server}/{id}.git".format(server=GIST_SERVER, id="{id}")
+GIT_GIST_PRIVATE = "git@{server}:{id}.git".format(server=GIST_SERVER, id="{id}")
+
+RE_GIST_URL = re.compile("^https?://{server}/([0-9A-Fa-f]+)$".format(server=GIST_SERVER))
+
+class GistError(Exception):
+	"""A parent of all exceptions raised by this module."""
+
+class NotFileError(GistError, IOError):
+	"""Raised when a filename is specified that is invalid."""
+
+class AuthenticationError(GistError, urllib.error.HTTPError):
+	"""Raised when the server rejects a user's authentication."""
 
 def load_authentication():
 	"""
@@ -86,7 +103,7 @@ class GistUser(object):
 			Retrives and returns the text-only representation of a specified Gist.
 		"""
 		
-		url = URL_HTTP_GIST_TXT.format(id=id)
+		url = HTTP_GIST_PUBLIC_TXT.format(id=id)
 		
 		return(urllib.request.urlopen(url).read().decode())
 	
@@ -95,18 +112,59 @@ class GistUser(object):
 			Clones (unauthenticatedly) the specified gist.
 		"""
 		
-		command = ["git", "clone", URL_GIT_GIST.format(id=id), "gist-{id}".format(id=id)]
+		command = ["git", "clone", GIT_GIST_PUBLIC.format(id=id), "gist-{id}".format(id=id)]
 		
 		return(0 == subprocess.Popen(command).wait())
 	
-	def write(self, contents=None, files=None, private=False):
+	def write(self, files, private=False):
 		"""
-			Creates a new Gist from the specified strings and/or files.
+			Creates a new Gist from the specified files.
 			
 			Returns the id of the newly-created Gist.
 		"""
 		
-		raise(NotImplementedError("This will be fixed before too long."))
+		if not files:
+			raise(ValueError("Cannot create a gist without data."))
+		
+		post_data = {}
+		
+		if private:
+			post_data["private"] = "on"
+		
+		for n, filename in enumerate(files, start=1):
+			if not os.path.isfile(filename):
+				raise(NotFileError("\"{filename}\" is not a real file.".format(filename=filename)))
+			
+			form_key = "gistfile{n}".format(n=n)
+			
+			post_data["file_ext[{key}]".format(key=form_key)] = os.path.splitext(filename)[1] or ".txt"
+			post_data["file_name[{key}]".format(key=form_key)] = os.path.basename(filename)
+			post_data["file_contents[{key}]".format(key=form_key)] = open(filename).read()
+		
+		if self.authentication:
+			post_data["login"], post_data["token"] = self.authentication
+			
+			sys.stderr.write("Uploading files as user {username}...\n".format(username=self.authentication[0]))
+		else:
+			sys.stderr.write("Uploading files anonymously...\n")
+		
+		post_data = urllib.parse.urlencode(post_data)
+		
+		reqest = urllib.request.Request(HTTP_GIST_POST, post_data)
+		
+		try:
+			response = urllib.request.urlopen(reqest)
+		except urllib.error.HTTPError as e:
+			if e.code == 401:
+				raise(AuthenticationError("Authentication failed, please ensure that your athentication configuration is correct."))
+			else:
+				raise
+		
+		url = response.geturl()
+		
+		id = RE_GIST_URL.match(url).groups()[0]
+		
+		return(id)
 
 def main(*args):
 	import gist
@@ -129,45 +187,9 @@ def main(*args):
 	
 	if opts.mode == "post":
 		if files:
-			for filename in files:
-				if not os.path.isfile(filename):
-					sys.stderr.write("Error: \"{filename}\" is not a real file.".format(filename=filename))
-					return(1)
+			id = user.write(files, private=opts.private)
 			
-			post_data = {}
-			
-			if user.authentication:
-				post_data["login"], post_data["token"] = user.authentication
-				
-				sys.stderr.write("Uploading files as user {username}...\n".format(username=user.authentication[0]))
-			else:
-				sys.stderr.write("Uploading files anonymously...\n")
-			
-			if opts.private:
-				post_data["private"] = "on"
-			
-			for n, filename in enumerate(files, start=1):
-				form_key = "gistfile{n}".format(n=n)
-				
-				post_data["file_ext[{key}]".format(key=form_key)] = os.path.splitext(filename)[1] or ".txt"
-				post_data["file_name[{key}]".format(key=form_key)] = os.path.basename(filename)
-				post_data["file_contents[{key}]".format(key=form_key)] = open(filename).read().encode("UTF-8")	
-			
-			post_data = urllib.parse.urlencode(post_data)
-			
-			reqest = urllib.request.Request(URL_GIT_GIST_PUBLIC, post_data)
-			
-			try:
-				response = urllib.request.urlopen(reqest)
-			except urllib.error.HTTPError as e:
-				if e.code == 401:
-					sys.stderr.write("Error: Authentication failed, please ensure that your athentication configuration is correct.\n")
-				else:
-					sys.stderr.write("Error: Upload failed with HTTP error {code} {message}.\n".format(code=e.code, message=e.msg))
-				
-				return(1)
-			
-			url = response.geturl()
+			url = HTTP_GIST_PUBLIC.format(id=id)
 			
 			if not clip(url):
 				sys.stderr.writeln("Warning: Unable to copy URL to clipboard.")
@@ -192,11 +214,6 @@ def main(*args):
 		if files:
 			if len(files) > 1:
 				sys.stderr.write("Warning: Extra arguments ignored\n         (reading more than one Gist at a time is unsupported)\n")
-			
-			data = user.read(files[0])
-			
-			if not clip(data):
-				sys.stderr.write("Warning: Unable to copy data to clipboard.\n")
 			
 			sys.stdout.write(data)
 			sys.stderr.write("\n")
