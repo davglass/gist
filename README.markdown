@@ -3,12 +3,12 @@ Gist: The Python 3.0 Script
 
 Works great with Gist: The Website.
 
-Ported the Ruby script to Python..
+Ported the Ruby script to Python 2 and 3, and added some features.
 
 Also supports:
 
  * Passing multiple files as arguments
- * Optionally Read from STDIN
+ * Creating a gist from STDIN
  * Auto file type detection via ext
  * Read support and clone support
 
