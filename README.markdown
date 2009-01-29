@@ -1,63 +1,61 @@
 Gist: The Python 3.0 Script
 ===========================
 
-Works great with Gist: The Website.
+Works great with Gist: The Website!
 
-Ported the Ruby script to Python 2 and 3, and added some features.
-
-Also supports:
-
- * Passing multiple files as arguments
- * Creating a gist from STDIN
- * Auto file type detection via ext
- * Read support and clone support
-
-Installation
-------------
-
-You need to set the GitHub config options to use this properly:
-http://github.com/guides/local-github-config
-
-As for real installation, you don't want to do that yet.
+This is the Python 3.0 version of this script, derived from the Ruby and
+Python 2 versions.
 
 Usage
 -----
 
 	# create a gist from one or more files
-	gist.py [-p] file [file2 file3...]
+	./gist.py [-p] file [file2 file3...]
 	
 	# create a gist from stdin, giving if a filename
-	cal | gist.py -i cal.txt
+	cal | ./gist.py -i cal.txt
 	
 	# clone the repostiories of one or more gists
-	gist.py -c id [id2 id3...]
+	./gist.py -c id [id2 id3...]
 	
 	# display the text contents of a gist
-	gist.py -r id
+	./gist.py -r id
+
+Installation
+------------
+
+You need to set the GitHub config options to use this properly.
+[Instructions are available
+](http://github.com/guides/local-github-config) in the GitHub guides.
+
+	curl http://github.com/JeremyBanks/gist/raw/master/3.0/gist.py > gist
+	chmod 755 gist
+	sudo mv gist /usr/local/bin/gist
+
+Before you decide to install this, a word of caution: This is currently
+under rapid development, and code only trivially tested before being
+pushed here. Functionality may change or be broken at any time.
 
 TODO
 ----
 
-* Support for reading private gists.
-* Use official API wherever possible.
-* Automatically detect if you attempt to clone one of your own gists,
-  and use the private clone URL if so. Give overrides to force private
-  or public clone attempts, though. Maybe. Think about this, at least.
-* Allow stdin-created files to have types without names.
+* Support for reading private Gists
+* Use official API wherever possible
+* Allow private cloning of Gists
+  * Add flags to force using the public or private clone URLs
+  * Detect if you are cloning one of your own Gists and default to using
+    the private URL if so
+* Allow `stdin` files to have types without names
 
-Repositories
-------------
+Repositories and Authors
+------------------------
 
-* [Ruby version](http://github.com/defunkt/gist/)
-* [Python 2 version](http://github.com/davglass/gist/)
-* [Python 3.0 version](http://github.com/JeremyBanks/gist/)
-
-Authors
--------
-
-* Original gist command line tool by [Chris Wanstrath](http://github.com/defunkt) (defunkt)
-* Python port by [Dav Glass](http://github.com/davglass)
-* Python 3.0 changes by [Jeremy Banks](http://github.com/jeremybanks)
+* [Ruby version](http://github.com/defunkt/gist/) by
+  [Chris Wanstrath](http://github.com/defunkt) (defunkt)
+* [Python 2 version](http://github.com/davglass/gist/) by
+  [Dav Glass](http://github.com/davglass)
+* [Python 3.0 version](http://github.com/JeremyBanks/gist/) by
+  [Jeremy Banks](http://github.com/jeremybanks)
 
 License
 -------
