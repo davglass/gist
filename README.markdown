@@ -43,7 +43,7 @@ TODO
 * Automatically detect if you attempt to clone one of your own gists,
   and use the private clone URL if so. Give overrides to force private
   or public clone attempts, though. Maybe. Think about this, at least.
-* Allow unnamed files to be uploaded.
+* Allow stdin-created files to have types without names.
 
 Repositories
 ------------

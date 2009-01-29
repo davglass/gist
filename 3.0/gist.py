@@ -120,7 +120,7 @@ class GistUser(object):
 		"""
 			Creates a new Gist from the specified files.
 			
-			files should be provided as a list of tuples(contents, filename)
+			files should be provided as a list of tuples(contents, filename, extension)
 			
 			Returns the id of the newly-created Gist.
 		"""
@@ -133,12 +133,21 @@ class GistUser(object):
 		if private:
 			post_data["private"] = "on"
 		
-		for n, file_ in enumerate(files, start=1):
-			content, filename = file_
+		for n, c_f_e in enumerate(files, start=1):
+			content, filename, extension = c_f_e
+			
+			if not extension:
+				if filename:
+					extension = os.path.splitext(filename)[1]
+				else:
+					extension = ".txt"
+			
+			if not filename:
+				filename = ""
 			
 			form_key = "gistfile{n}".format(n=n)
 			
-			post_data["file_ext[{key}]".format(key=form_key)] = os.path.splitext(filename)[1] or ".txt"
+			post_data["file_ext[{key}]".format(key=form_key)] =  extension
 			post_data["file_name[{key}]".format(key=form_key)] = filename
 			post_data["file_contents[{key}]".format(key=form_key)] = content
 		
@@ -211,6 +220,8 @@ def main(*args):
 				
 				file_data.append((open(filename).read(), os.path.basename(filename)))
 			
+			sys.stderr.write("Creating gist...\n")
+			
 			id = user.write(file_data, private=opts.private)
 			
 			url = HTTP_GIST_PUBLIC.format(id=id)
@@ -228,12 +239,16 @@ def main(*args):
 			
 		if files:
 			filename = files[0]
+			extension = None
 		else:
-			filename = "gist.txt"
+			filename = None
+			extension = ".txt"
 		
-		id = user.write([(sys.stdin.read(), filename)])
+		id = user.write([(sys.stdin.read(), filename, extension)], private=opts.private)
 		
 		url = HTTP_GIST_PUBLIC.format(id=id)
+		
+		sys.stderr.write("Creating gist...\n")
 		
 		if not clip(url):
 			sys.stderr.writeln("Warning: Unable to copy URL to clipboard.")
